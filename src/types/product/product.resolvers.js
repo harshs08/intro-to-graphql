@@ -9,10 +9,61 @@ const productsTypeMatcher = {
   DRONE: 'Drone'
 }
 
+const product = (_, args) => {
+  return Product
+    .findById(args.id)
+    .lean()
+    .exec();
+}
+
+const products = () => {
+  return Product
+    .find()
+    .lean()
+    .exec();
+}
+
+const newProduct = (_, args, ctx) => {
+  return Product
+    .create({
+      ...args.input,
+      createdBy: ctx.user._id
+    });
+}
+
+const updateProduct = (_, args) => {
+  return Product
+  .findByIdAndUpdate(
+    args.id,
+    args.input,
+    { new: true })
+  .lean()
+  .exec();
+}
+
+const removeProduct = (_, args) => {
+  return Product.findByIdAndDelete(args.id).exec({});
+}
+
+const createdBy = (product) => {
+  return User
+  .findById(product.createdBy)
+  .lean()
+  .exec();
+}
+
 export default {
-  Query: {},
-  Mutation: {},
+  Query: { 
+    products, 
+    product 
+  },
+  Mutation: {
+    newProduct,
+    updateProduct,
+    removeProduct
+  },
   Product: {
-    __resolveType(product) {}
+    __resolveType(product) {},
+    createdBy
   }
 }
